@@ -1,0 +1,69 @@
+import { expect, test } from '@playwright/test';
+
+test('viewer shows synthetic release and channel tabs', async ({ page }, testInfo) => {
+  await page.goto('/');
+  await expect(page.getByRole('heading', { name: '홈쇼핑 요금 뷰어' })).toBeVisible();
+  await expect(page.getByRole('img', { name: '어딩' })).toBeVisible();
+  await expect(page.getByRole('img', { name: '(주)패키지' })).toBeVisible();
+  await expect(page.locator('.logo-tile').first()).toHaveCSS('border-top-style', 'none');
+  const companySort = page.getByRole('combobox', { name: '홈쇼핑사' });
+  const daySort = page.getByRole('combobox', { name: '요일 기준' });
+  const orderSort = page.getByRole('combobox', { name: '정렬 순서' });
+  await companySort.selectOption('all');
+  await daySort.selectOption('Tue');
+  await expect(page.getByRole('heading', { name: '전체 홈쇼핑사' })).toBeVisible();
+  await expect(page.locator('[data-company-panel]')).toHaveCount(3);
+  await expect(page.locator('[data-company-panel="ShoppingNT"]')).toContainText('24개 요금');
+  await expect(page.locator('[data-company-panel="KT"]')).toContainText('8개 편성');
+  await expect(page.locator('[data-company-panel="CJ"]')).toContainText('해당 요일 편성 없음');
+  await companySort.selectOption('KT');
+  await daySort.selectOption('Tue');
+  await orderSort.selectOption('weekday-time-desc');
+  await expect(page.getByRole('heading', { name: 'KT알파쇼핑 요금표' })).toBeVisible();
+  await expect(page.getByRole('table', { name: 'KT알파쇼핑 시간대별 방송 요금' }).locator('tbody tr').first()).toContainText('23');
+  await expect(page.getByRole('table', { name: 'KT알파쇼핑 시간대별 방송 요금' }).locator('tbody tr')).toHaveCount(8);
+  await companySort.selectOption('ShoppingNT');
+  await daySort.selectOption('all');
+  await orderSort.selectOption('weekday-time-asc');
+  await expect(page.getByRole('tab', { name: '쇼핑엔티' })).toBeVisible();
+  await expect(page.getByRole('table', { name: '쇼핑엔티 시간대별 방송 요금' })).toBeVisible();
+  await expect(page.getByText('좌우로 밀어서 요일별 요금을 확인하세요.')).toBeVisible();
+  await expect(page.getByText('빨간선 바깥 시간 편성 시 3회 편성 必', { exact: false })).toBeVisible();
+  await expect(page.locator('td[data-day="Sat"][data-hour="06"]')).toContainText('2,647');
+  await expect(page.locator('td[data-day="Sat"][data-hour="06"]')).toHaveAttribute('data-zone', 'inside_box');
+  await expect(page.locator('td[data-day="Fri"][data-hour="18"]')).toHaveAttribute('data-zone', 'outside_box');
+  await expect(page.locator('td[data-day="Fri"][data-hour="19"]')).toHaveAttribute('data-zone', 'inside_box');
+  await page.screenshot({ path: `test-results/${testInfo.project.name}-shoppingnt.png`, fullPage: true });
+  await page.getByRole('tab', { name: 'KT알파쇼핑' }).click();
+  await expect(page.getByRole('heading', { name: 'KT알파쇼핑 요금표' })).toBeVisible();
+  await expect(page.getByRole('table', { name: 'KT알파쇼핑 시간대별 방송 요금' })).toBeVisible();
+  await expect(page.locator('td[data-day="Tue"][data-hour="20"]')).toContainText('5,290');
+  await expect(page.getByText('원본 미기재', { exact: true })).toBeVisible();
+  await expect(page.getByText('이용 불가')).toHaveCount(0);
+  await expect(page.locator('body')).not.toContainText(/출처|SHA-256|SYNTHETIC|로컬 검수|합성 데이터|hash/i);
+  await page.screenshot({ path: `test-results/${testInfo.project.name}-viewer.png`, fullPage: true });
+});
+
+test('CJ shows essential conditions and videos filter by country and region', async ({ page }) => {
+  await page.goto('/');
+  await page.getByRole('tab', { name: 'CJ온스타일' }).click();
+  await expect(page.getByText('14,885만원')).toBeVisible();
+  await expect(page.getByText('다음 날', { exact: false })).toBeVisible();
+  await expect(page.locator('.set-card').first().getByRole('listitem')).toHaveCount(2);
+  await expect(page.locator('body')).not.toContainText(/출처|SHA-256|SYNTHETIC|로컬 검수|합성 데이터|hash/i);
+  await page.getByRole('tab', { name: '영상 리스트' }).click();
+  await expect(page.locator('.sort-bar')).toHaveCount(0);
+  await expect(page.getByText('46개 영상')).toBeVisible();
+  await page.getByRole('combobox', { name: '영상 국가' }).selectOption('베트남');
+  await page.getByRole('combobox', { name: '영상 지역' }).selectOption('다낭');
+  await expect(page.getByRole('heading', { name: '베트남' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: '다낭', exact: true }).first()).toBeVisible();
+  await expect(page.locator('.video-card')).toHaveCount(8);
+  await expect(page.getByRole('link', { name: 'YouTube에서 보기' }).first()).toHaveAttribute('rel', /noopener/);
+});
+
+test('explicit state pages render empty, forbidden, unavailable and login states', async ({ page }) => {
+  for (const [state, text] of [['empty','표시할 데이터가 없습니다'],['403','접근 권한이 없습니다'],['503','데이터 연결이 준비되지 않았습니다'],['login','로그인이 필요합니다']] as const) {
+    await page.goto(`/?state=${state}`); await expect(page.getByRole('heading', { name: text })).toBeVisible();
+  }
+});

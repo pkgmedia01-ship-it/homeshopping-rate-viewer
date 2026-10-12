@@ -1,0 +1,10 @@
+node_modules
+.next
+.vercel
+*.tsbuildinfo
+tests
+test-results
+playwright-report
+docs/screenshots
+apps-script
+.env*
