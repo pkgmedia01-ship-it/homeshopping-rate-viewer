@@ -31,7 +31,9 @@ test('viewer shows synthetic release and channel tabs', async ({ page }, testInf
   expect((publicTabBox?.x ?? 0) + (publicTabBox?.width ?? 0)).toBeLessThanOrEqual(page.viewportSize()?.width ?? 0);
   await expect(page.getByRole('heading', { name: '공영홈쇼핑 방송 요금표' })).toBeVisible();
   await expect(page.locator('section[aria-labelledby="gshop-title"] .section-subtitle')).not.toContainText('단위: 만원 / VAT 별도');
-  await expect(page.locator('.gshop-fee-card')).toContainText('TV LIVE 정액 수수료: 3,800만원');
+  await expect(page.locator('.gshop-fee-card')).toContainText('TV LIVE 정액 수수료:');
+  await expect(page.locator('.gshop-fee-card').getByText('3,800만원', { exact: true })).toBeVisible();
+  await expect(page.locator('.gshop-fee-card > span')).toHaveCSS('font-family', /Arial|Noto Sans KR|sans-serif/i);
   await expect(page.locator('.gshop-fee-card')).not.toContainText('단위: 만원 / VAT 별도');
   await expect(page.getByText('콜 부족 시 차액 환불 조건 적용')).toBeVisible();
   await expect(page.getByText('4만원 / 국내', { exact: false })).toBeVisible();

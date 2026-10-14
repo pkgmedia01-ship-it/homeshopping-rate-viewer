@@ -73,7 +73,7 @@ export default function Viewer({ release }: { release: Release }) {
 
 function PublicHomeShoppingDetails() {
   return <div className="gshop-layout">
-    <article className="gshop-fee-card"><strong>TV LIVE 정액 수수료: 3,800만원</strong></article>
+    <article className="gshop-fee-card"><span>TV LIVE 정액 수수료:</span><strong>3,800만원</strong></article>
     <div className="gshop-conditions"><h3>조건</h3><ul><li>콜 부족 시 차액 환불 조건 적용</li><li><strong>콜당 수수료</strong><span>4만원 / 국내</span><span>6만원 / 단거리</span><span>11만원 / 장거리</span></li></ul></div>
   </div>;
 }
