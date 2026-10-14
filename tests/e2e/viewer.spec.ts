@@ -2,6 +2,11 @@ import { expect, test } from '@playwright/test';
 
 test('viewer shows synthetic release and channel tabs', async ({ page }, testInfo) => {
   await page.goto('/');
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute('content', /social-preview-2026-11\.png$/);
+  await expect(page.locator('meta[property="og:image:width"]')).toHaveAttribute('content', '1200');
+  await expect(page.locator('meta[property="og:image:height"]')).toHaveAttribute('content', '630');
+  await expect(page.locator('meta[name="twitter:card"]')).toHaveAttribute('content', 'summary_large_image');
+  await expect(page.locator('meta[name="twitter:image"]')).toHaveAttribute('content', /social-preview-2026-11\.png$/);
   await expect(page.getByRole('heading', { name: '홈쇼핑 요금 뷰어' })).toBeVisible();
   await expect(page.getByText('11월 기준 요금표', { exact: true })).toBeVisible();
   await expect(page.locator('.hero-meta')).toContainText('2026년 11월');
