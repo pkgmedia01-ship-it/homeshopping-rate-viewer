@@ -62,7 +62,10 @@ test('viewer shows synthetic release and channel tabs', async ({ page }, testInf
   await expect(page.locator('body')).not.toContainText('원본 미기재');
   await expect(page.getByText('이용 불가')).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText(/출처|SHA-256|SYNTHETIC|로컬 검수|합성 데이터|hash/i);
-  await expect(page.getByText('방송 시작·종료 분은 변동될 수 있으며, 상세 편성 조건은 담당자 확인이 필요합니다.', { exact: true })).toBeVisible();
+  await expect(page.getByText('시작시간 기준 · 방송 시작·종료 분은 변동될 수 있습니다.', { exact: true })).toBeVisible();
+  await expect(page.getByText('홈쇼핑 편성 안내', { exact: true })).toBeVisible();
+  await expect(page.getByText('상세 편성 일자 및 조건은 담당자 확인이 필요합니다.', { exact: true })).toBeVisible();
+  await expect(page.locator('body')).not.toContainText('상세 편성 조건은 담당자 확인이 필요합니다.');
   await expect(page.getByRole('link', { name: '서승범 이사 : 010-9214-4057' })).toHaveAttribute('href', 'tel:01092144057');
   await expect(page.getByRole('link', { name: '이예린 과장 : 010-9365-9489' })).toHaveAttribute('href', 'tel:01093659489');
   await page.screenshot({ path: `test-results/${testInfo.project.name}-viewer.png`, fullPage: true });
