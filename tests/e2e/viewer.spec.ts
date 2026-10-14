@@ -30,8 +30,9 @@ test('viewer shows synthetic release and channel tabs', async ({ page }, testInf
   expect(publicTabBox?.x ?? -1).toBeGreaterThanOrEqual(0);
   expect((publicTabBox?.x ?? 0) + (publicTabBox?.width ?? 0)).toBeLessThanOrEqual(page.viewportSize()?.width ?? 0);
   await expect(page.getByRole('heading', { name: '공영홈쇼핑 방송 요금표' })).toBeVisible();
-  await expect(page.getByText('TV LIVE · 정액 수수료', { exact: true })).toBeVisible();
-  await expect(page.getByText('3,800만원')).toBeVisible();
+  await expect(page.locator('section[aria-labelledby="gshop-title"] .section-subtitle')).not.toContainText('단위: 만원 / VAT 별도');
+  await expect(page.locator('.gshop-fee-card')).toContainText('TV LIVE 정액 수수료: 3,800만원');
+  await expect(page.locator('.gshop-fee-card')).not.toContainText('단위: 만원 / VAT 별도');
   await expect(page.getByText('콜 부족 시 차액 환불 조건 적용')).toBeVisible();
   await expect(page.getByText('4만원 / 국내', { exact: false })).toBeVisible();
   await expect(page.getByText('6만원 / 단거리', { exact: false })).toBeVisible();
@@ -74,12 +75,18 @@ test('viewer shows synthetic release and channel tabs', async ({ page }, testInf
 test('CJ shows essential conditions and videos filter by country and region', async ({ page }, testInfo) => {
   await page.goto('/');
   await page.getByRole('tab', { name: 'CJ온스타일' }).click();
+  await expect(page.locator('.cj-live-group')).toBeVisible();
+  await expect(page.locator('.cj-tcommerce-group')).toBeVisible();
+  await expect(page.locator('.cj-live-group')).toHaveCSS('border-top-style', 'solid');
+  await expect(page.locator('.cj-tcommerce-group')).toHaveCSS('border-top-style', 'solid');
   await expect(page.getByText('14,885만원')).toBeVisible();
   await expect(page.getByText('다음 날', { exact: false })).toBeVisible();
   await expect(page.locator('.set-card').first().getByRole('listitem')).toHaveCount(2);
   await expect(page.locator('body')).not.toContainText(/출처|SHA-256|SYNTHETIC|로컬 검수|합성 데이터|hash/i);
+  await page.screenshot({ path: `test-results/${testInfo.project.name}-cj-separated.png`, fullPage: true });
   await page.getByRole('tab', { name: '영상 리스트' }).click();
   await expect(page.locator('.sort-bar')).toHaveCount(0);
+  await expect(page.locator('.schedule-notice')).toHaveCount(0);
   await expect(page.getByText('46개 영상')).toBeVisible();
   await expect(page.getByRole('combobox', { name: '영상 분류' })).toHaveCount(0);
   await expect(page.locator('.video-type')).toHaveCount(0);

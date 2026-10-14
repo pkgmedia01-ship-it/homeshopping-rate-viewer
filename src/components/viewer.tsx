@@ -66,20 +66,20 @@ export default function Viewer({ release }: { release: Release }) {
     {tab === 'GSHOP' && <PublicHomeShoppingView/>}
     {tab === '영상' && <VideoLibrary videos={approvedVideos}/>} 
 
-    <aside className="notice schedule-notice">시작시간 기준 · 방송 시작·종료 분은 변동될 수 있습니다.</aside>
+    {tab !== '영상' && <aside className="notice schedule-notice">시작시간 기준 · 방송 시작·종료 분은 변동될 수 있습니다.</aside>}
     <footer><strong>홈쇼핑 편성 안내</strong><span>상세 편성 일자 및 조건은 담당자 확인이 필요합니다.</span><div className="contact-list" aria-label="담당자 연락처"><a href="tel:01092144057">서승범 이사 : 010-9214-4057</a><a href="tel:01093659489">이예린 과장 : 010-9365-9489</a></div></footer>
   </main>;
 }
 
 function PublicHomeShoppingDetails() {
   return <div className="gshop-layout">
-    <article className="gshop-fee-card"><span>TV LIVE · 정액 수수료</span><strong>3,800만원</strong><small>단위: 만원 / VAT 별도</small></article>
+    <article className="gshop-fee-card"><strong>TV LIVE 정액 수수료: 3,800만원</strong></article>
     <div className="gshop-conditions"><h3>조건</h3><ul><li>콜 부족 시 차액 환불 조건 적용</li><li><strong>콜당 수수료</strong><span>4만원 / 국내</span><span>6만원 / 단거리</span><span>11만원 / 장거리</span></li></ul></div>
   </div>;
 }
 
 function PublicHomeShoppingView() {
-  return <section aria-labelledby="gshop-title"><div className="section-title"><div><p className="eyebrow">PUBLIC HOMESHOPPING · TV LIVE</p><h2 id="gshop-title">공영홈쇼핑 방송 요금표</h2><p className="section-subtitle">TV LIVE 정액 수수료와 콜당 조건을 확인하세요. 단위: 만원 / VAT 별도</p></div></div><PublicHomeShoppingDetails/></section>;
+  return <section aria-labelledby="gshop-title"><div className="section-title"><div><p className="eyebrow">PUBLIC HOMESHOPPING · TV LIVE</p><h2 id="gshop-title">공영홈쇼핑 방송 요금표</h2><p className="section-subtitle">TV LIVE 정액 수수료와 콜당 조건을 확인하세요.</p></div></div><PublicHomeShoppingDetails/></section>;
 }
 
 function VideoLibrary({ videos }: { videos: Release['videos'] }) {
@@ -141,5 +141,5 @@ function CJ({ release, rows }: { release: Release; rows: Release['airings'] }) {
   const offerById = new Map(release.offers.map((offer) => [offer.id, offer]));
   const liveRows = rows.filter((row) => row.kind === 'live');
   const sets = release.offers.filter((offer) => offer.channel === 'CJ' && offer.priceBasis === 'set_fee' && rows.some((row) => row.offerId === offer.id));
-  return <section aria-labelledby="cj-title"><div className="section-title"><div><p className="eyebrow">LIVE & T-COMMERCE</p><h2 id="cj-title">CJ온스타일 요금표</h2><p className="section-subtitle">LIVE 요금과 T커머스 세트 요금을 구분해 확인하세요. 단위: 만원 / VAT 별도</p></div></div><div className="cj-layout"><div><h3 className="group-title">TV LIVE</h3><div className="cards">{liveRows.map((airing) => { const offer = offerById.get(airing.offerId); return <article className="card live-card" key={airing.id}><span className="pill">{koDay[airing.day]}요일 · LIVE</span><h3>{airing.start}–{airing.end}</h3><strong>{money(offer?.priceManwon)}</strong><p>정액 수수료 · VAT 별도</p></article>; })}</div></div><aside><h3 className="group-title">T커머스 세트</h3>{sets.map((set) => { const components = rows.filter((row) => row.offerId === set.id); return <article className="set-card" key={set.id}><div className="set-card-head"><h3>{set.label.replace('T커머스 ', '')}</h3><strong>{money(set.priceManwon)}</strong></div><p>1회 녹화 · 2회 편성 기준 · VAT 별도</p><ul>{components.map((component) => <li key={component.id}><span>{koDay[component.day]}요일</span><strong>{component.start}–{component.end}{component.endDayOffset ? ' (다음 날)' : ''}</strong></li>)}</ul></article>; })}</aside></div><div className="notice">TV LIVE는 라이브 방송, T커머스는 녹화 방송입니다.</div></section>;
+  return <section aria-labelledby="cj-title"><div className="section-title"><div><p className="eyebrow">LIVE & T-COMMERCE</p><h2 id="cj-title">CJ온스타일 요금표</h2><p className="section-subtitle">LIVE 요금과 T커머스 세트 요금을 구분해 확인하세요. 단위: 만원 / VAT 별도</p></div></div><div className="cj-layout"><section className="cj-rate-group cj-live-group"><span className="cj-group-kicker">LIVE BROADCAST</span><h3 className="group-title">TV LIVE</h3><div className="cards">{liveRows.map((airing) => { const offer = offerById.get(airing.offerId); return <article className="card live-card" key={airing.id}><span className="pill">{koDay[airing.day]}요일 · LIVE</span><h3>{airing.start}–{airing.end}</h3><strong>{money(offer?.priceManwon)}</strong><p>정액 수수료 · VAT 별도</p></article>; })}</div></section><section className="cj-rate-group cj-tcommerce-group"><span className="cj-group-kicker">RECORDED T-COMMERCE</span><h3 className="group-title">T커머스 세트</h3>{sets.map((set) => { const components = rows.filter((row) => row.offerId === set.id); return <article className="set-card" key={set.id}><div className="set-card-head"><h3>{set.label.replace('T커머스 ', '')}</h3><strong>{money(set.priceManwon)}</strong></div><p>1회 녹화 · 2회 편성 기준 · VAT 별도</p><ul>{components.map((component) => <li key={component.id}><span>{koDay[component.day]}요일</span><strong>{component.start}–{component.end}{component.endDayOffset ? ' (다음 날)' : ''}</strong></li>)}</ul></article>; })}</section></div><div className="notice">TV LIVE는 라이브 방송, T커머스는 녹화 방송입니다.</div></section>;
 }
