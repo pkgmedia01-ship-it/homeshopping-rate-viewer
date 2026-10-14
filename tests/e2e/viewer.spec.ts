@@ -3,6 +3,8 @@ import { expect, test } from '@playwright/test';
 test('viewer shows synthetic release and channel tabs', async ({ page }, testInfo) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: '홈쇼핑 요금 뷰어' })).toBeVisible();
+  await expect(page.getByText('10월 기준 요금표', { exact: true })).toBeVisible();
+  await expect(page.locator('.hero-meta')).toContainText('단위: 만원 / VAT 별도');
   await expect(page.getByRole('img', { name: '어딩' })).toBeVisible();
   await expect(page.getByRole('img', { name: '(주)패키지' })).toBeVisible();
   await expect(page.locator('.logo-tile').first()).toHaveCSS('border-top-style', 'none');
@@ -16,10 +18,27 @@ test('viewer shows synthetic release and channel tabs', async ({ page }, testInf
   await companySort.selectOption('all');
   await daySort.selectOption('Tue');
   await expect(page.getByRole('heading', { name: '전체 홈쇼핑사' })).toBeVisible();
-  await expect(page.locator('[data-company-panel]')).toHaveCount(3);
+  await expect(page.locator('[data-company-panel]')).toHaveCount(4);
   await expect(page.locator('body')).not.toContainText(/\d+개 (요금|편성|선택지)/);
   await expect(page.locator('[data-company-panel="CJ"]')).toContainText('해당 요일 편성 없음');
+  await expect(page.locator('[data-company-panel="GSHOP"]')).toContainText('3,800만원');
+  await expect(page.getByRole('tab', { name: '공영홈쇼핑' })).toBeVisible();
+  await companySort.selectOption('GSHOP');
+  await expect(daySort).toBeDisabled();
+  await expect(daySort).toHaveText('요일 무관');
+  const publicTabBox = await page.getByRole('tab', { name: '공영홈쇼핑' }).boundingBox();
+  expect(publicTabBox?.x ?? -1).toBeGreaterThanOrEqual(0);
+  expect((publicTabBox?.x ?? 0) + (publicTabBox?.width ?? 0)).toBeLessThanOrEqual(page.viewportSize()?.width ?? 0);
+  await expect(page.getByRole('heading', { name: '공영홈쇼핑 방송 요금표' })).toBeVisible();
+  await expect(page.getByText('TV LIVE · 정액 수수료', { exact: true })).toBeVisible();
+  await expect(page.getByText('3,800만원')).toBeVisible();
+  await expect(page.getByText('콜 부족 시 차액 환불 조건 적용')).toBeVisible();
+  await expect(page.getByText('4만원 / 국내', { exact: false })).toBeVisible();
+  await expect(page.getByText('6만원 / 단거리', { exact: false })).toBeVisible();
+  await expect(page.getByText('11만원 / 장거리', { exact: false })).toBeVisible();
+  await page.screenshot({ path: `test-results/${testInfo.project.name}-public-homeshopping.png`, fullPage: true });
   await companySort.selectOption('KT');
+  await expect(daySort).toBeEnabled();
   await daySort.selectOption('Tue');
   await expect(page.getByRole('heading', { name: 'KT알파쇼핑 요금표' })).toBeVisible();
   await expect(page.getByRole('table', { name: 'KT알파쇼핑 시간대별 방송 요금' }).locator('tbody tr').first()).toContainText('00');
@@ -43,6 +62,9 @@ test('viewer shows synthetic release and channel tabs', async ({ page }, testInf
   await expect(page.locator('body')).not.toContainText('원본 미기재');
   await expect(page.getByText('이용 불가')).toHaveCount(0);
   await expect(page.locator('body')).not.toContainText(/출처|SHA-256|SYNTHETIC|로컬 검수|합성 데이터|hash/i);
+  await expect(page.getByText('방송 시작·종료 분은 변동될 수 있으며, 상세 편성 조건은 담당자 확인이 필요합니다.', { exact: true })).toBeVisible();
+  await expect(page.getByRole('link', { name: '서승범 이사 : 010-9214-4057' })).toHaveAttribute('href', 'tel:01092144057');
+  await expect(page.getByRole('link', { name: '이예린 과장 : 010-9365-9489' })).toHaveAttribute('href', 'tel:01093659489');
   await page.screenshot({ path: `test-results/${testInfo.project.name}-viewer.png`, fullPage: true });
 });
 
