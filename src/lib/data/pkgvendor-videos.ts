@@ -53,7 +53,7 @@ const seeds: readonly VideoSeed[] = [
 
 export const pkgVendorVideos: Release['videos'] = seeds.map(([id, title, country, region, contentType, durationSeconds]) => ({
   id,
-  month: '2026-10',
+  month: '2026-11',
   sourceChannel: '패키지미디어',
   title,
   country,

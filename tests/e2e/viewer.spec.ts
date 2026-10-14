@@ -3,7 +3,8 @@ import { expect, test } from '@playwright/test';
 test('viewer shows synthetic release and channel tabs', async ({ page }, testInfo) => {
   await page.goto('/');
   await expect(page.getByRole('heading', { name: '홈쇼핑 요금 뷰어' })).toBeVisible();
-  await expect(page.getByText('10월 기준 요금표', { exact: true })).toBeVisible();
+  await expect(page.getByText('11월 기준 요금표', { exact: true })).toBeVisible();
+  await expect(page.locator('.hero-meta')).toContainText('2026년 11월');
   await expect(page.locator('.hero-meta')).toContainText('단위: 만원 / VAT 별도');
   await expect(page.getByRole('img', { name: '어딩' })).toBeVisible();
   await expect(page.getByRole('img', { name: '(주)패키지' })).toBeVisible();
@@ -50,13 +51,22 @@ test('viewer shows synthetic release and channel tabs', async ({ page }, testInf
   await daySort.selectOption('all');
 
   await expect(page.getByRole('tab', { name: '쇼핑엔티' })).toBeVisible();
+  await expect(page.getByRole('button', { name: '전국 방송' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.getByRole('button', { name: 'IPTV' })).toHaveAttribute('aria-pressed', 'false');
   await expect(page.getByRole('table', { name: '쇼핑엔티 시간대별 방송 요금' })).toBeVisible();
   await expect(page.getByText('좌우로 밀어서 요일별 요금을 확인하세요.')).toBeVisible();
   await expect(page.getByText('빨간선 바깥 시간 편성 시 3회 편성 必', { exact: false })).toBeVisible();
-  await expect(page.locator('td[data-day="Sat"][data-hour="06"]')).toContainText('2,647');
+  await expect(page.locator('td[data-day="Sat"][data-hour="06"]')).toContainText('2,649');
+  await expect(page.getByRole('row', { name: /06:33/ })).toBeVisible();
   await expect(page.locator('td[data-day="Sat"][data-hour="06"]')).toHaveAttribute('data-zone', 'inside_box');
   await expect(page.locator('td[data-day="Fri"][data-hour="18"]')).toHaveAttribute('data-zone', 'outside_box');
   await expect(page.locator('td[data-day="Fri"][data-hour="19"]')).toHaveAttribute('data-zone', 'inside_box');
+  await expect(page.getByText('11월 9일부터 분리송출 요금 적용', { exact: false })).toBeVisible();
+  await expect(page.getByText('주말 19시·20시는 IPTV 편성 필수', { exact: false })).toBeVisible();
+  await page.getByRole('button', { name: 'IPTV' }).click();
+  await expect(page.getByRole('button', { name: 'IPTV' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(page.locator('td[data-day="Sat"][data-hour="06"]')).toContainText('1,502');
+  await expect(page.locator('td[data-day="Sun"][data-hour="20"]')).toContainText('1,780');
   await page.screenshot({ path: `test-results/${testInfo.project.name}-shoppingnt.png`, fullPage: true });
   await page.getByRole('tab', { name: 'KT알파쇼핑' }).click();
   await expect(page.getByRole('heading', { name: 'KT알파쇼핑 요금표' })).toBeVisible();

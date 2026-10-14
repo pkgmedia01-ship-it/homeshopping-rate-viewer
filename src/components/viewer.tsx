@@ -7,6 +7,7 @@ import { isApprovedVideoUrl } from '@/lib/security/video-url';
 import { shoppingNtBoundary, shoppingNtDays, shoppingNtZone } from '@/lib/domain/shoppingnt';
 import { filterAndSortAirings, type ViewDay, type ViewOrder } from '@/lib/domain/view-sort';
 import { normalizeVideoRegion } from '@/lib/domain/video-region';
+import type { ShoppingNtRateMode } from '@/lib/data/shoppingnt-november';
 
 const tabs = [
   { id: '전체', label: '전체' },
@@ -47,7 +48,7 @@ export default function Viewer({ release }: { release: Release }) {
         <h1>홈쇼핑 요금 뷰어</h1>
         <p className="hero-meta"><strong>{release.month.replace('-', '년 ')}월</strong><span/>단위: {release.unit} / VAT 별도</p>
       </div>
-      <div className="header-summary"><span>10월 기준 요금표</span><strong>쇼핑엔티 · KT알파쇼핑 · CJ온스타일 · 공영홈쇼핑</strong></div>
+      <div className="header-summary"><span>{Number(release.month.slice(5))}월 기준 요금표</span><strong>쇼핑엔티 · KT알파쇼핑 · CJ온스타일 · 공영홈쇼핑</strong></div>
     </header>
 
     {tab !== '영상' && <div className="sort-bar" aria-label="요금표 정렬 및 필터">
@@ -100,7 +101,8 @@ function VideoLibrary({ videos }: { videos: Release['videos'] }) {
 }
 
 function ShoppingNtView({ release, day, order }: { release: Release; day: ViewDay; order: ViewOrder }) {
-  return <section aria-labelledby="snt-title"><div className="section-title"><div><p className="eyebrow">24 HOURS × 7 DAYS</p><h2 id="snt-title">쇼핑엔티 요금표</h2><p className="section-subtitle">시간대와 요일을 한눈에 비교하세요. 단위: 만원 / VAT 별도</p></div></div><ShoppingNtTable release={release} day={day} order={order}/><div className="rule-grid"><article className="rule-card priority"><span className="rule-mark red-line"/><div><strong>빨간선 바깥 시간 편성 시 3회 편성 必</strong><p>빨간 테두리 밖의 시간대는 1회 녹화 시 3회 편성 조건입니다.</p></div></article><article className="rule-card"><span className="rule-mark inside"/><div><strong>빨간선 안쪽: 2회 이상 편성</strong><p>1회 녹화 시 2회 이상 편성이 필요합니다.</p></div></article><article className="rule-card"><span className="rule-number">+500</span><div><strong>1회만 편성할 경우</strong><p>해당 시간 방송비에 500만원 추가되며 추가 금액은 VAT 별도입니다.</p></div></article><article className="rule-card"><span className="rule-mark holiday">일</span><div><strong>공휴일은 일요일 요금 적용</strong><p>표시 요금은 VAT 별도 기준입니다.</p></div></article></div></section>;
+  const [rateMode, setRateMode] = useState<ShoppingNtRateMode>('national');
+  return <section aria-labelledby="snt-title"><div className="section-title"><div><p className="eyebrow">24 HOURS × 7 DAYS</p><h2 id="snt-title">쇼핑엔티 요금표</h2><p className="section-subtitle">전국 방송과 IPTV 요금을 구분해 확인하세요. 단위: 만원 / VAT 별도</p></div></div><div className="snt-release-note"><strong>11월 9일부터 분리송출 요금 적용</strong><span>동시송출 2회 · 동시송출 1회 + IPTV 1회 · IPTV 3회 편성 가능</span><b>주말 19시·20시는 IPTV 편성 필수</b></div><div className="snt-mode-switch" aria-label="쇼핑엔티 요금 기준"><button type="button" aria-pressed={rateMode === 'national'} onClick={() => setRateMode('national')}>전국 방송</button><button type="button" aria-pressed={rateMode === 'iptv'} onClick={() => setRateMode('iptv')}>IPTV</button></div><ShoppingNtTable release={release} day={day} order={order} mode={rateMode}/>{rateMode === 'national' ? <div className="rule-grid"><article className="rule-card priority"><span className="rule-mark red-line"/><div><strong>빨간선 바깥 시간 편성 시 3회 편성 必</strong><p>빨간 테두리 밖의 시간대는 1회 녹화 시 3회 편성 조건입니다.</p></div></article><article className="rule-card"><span className="rule-mark inside"/><div><strong>빨간선 안쪽: 2회 이상 편성</strong><p>1회 녹화 시 2회 이상 편성이 필요합니다.</p></div></article><article className="rule-card"><span className="rule-number">+500</span><div><strong>1회만 편성할 경우</strong><p>해당 시간 방송비에 500만원 추가되며 추가 금액은 VAT 별도입니다.</p></div></article><article className="rule-card"><span className="rule-mark holiday">일</span><div><strong>공휴일은 일요일 요금 적용</strong><p>표시 요금은 VAT 별도 기준입니다.</p></div></article></div> : <div className="rule-grid iptv-rules"><article className="rule-card priority"><span className="rule-number">3회</span><div><strong>IPTV 3회 이상 편성</strong><p>1회 녹화 시 IPTV는 3회 이상 편성이 필요합니다.</p></div></article><article className="rule-card"><span className="rule-mark holiday">일</span><div><strong>공휴일은 일요일 요금 적용</strong><p>표시 요금은 VAT 별도 기준입니다.</p></div></article></div>}</section>;
 }
 
 function KtView({ release, day, order }: { release: Release; day: ViewDay; order: ViewOrder }) {
@@ -113,20 +115,20 @@ function AllChannels({ release, day, order }: { release: Release; day: ViewDay; 
   const cjRows = filterAndSortAirings(release.airings, { channel: 'CJ', day, order });
   const selectedDay = day === 'all' ? '전체 요일' : `${koDay[day]}요일`;
   return <section aria-labelledby="all-title" className="all-channels"><div className="section-title"><div><p className="eyebrow">{selectedDay}</p><h2 id="all-title">전체 홈쇼핑사</h2><p className="section-subtitle">같은 요일의 요금을 홈쇼핑사별로 이어서 확인하세요.</p></div></div>
-    <article className="company-panel" data-company-panel="ShoppingNT"><div className="company-panel-title"><h3>쇼핑엔티</h3></div>{shoppingNtRows.length ? <ShoppingNtTable release={release} day={day} order={order}/> : <p className="empty-state">해당 요일 편성 없음</p>}</article>
+    <article className="company-panel" data-company-panel="ShoppingNT"><div className="company-panel-title"><h3>쇼핑엔티 · 전국 방송 기준</h3></div>{shoppingNtRows.length ? <ShoppingNtTable release={release} day={day} order={order} mode="national"/> : <p className="empty-state">해당 요일 편성 없음</p>}</article>
     <article className="company-panel" data-company-panel="KT"><div className="company-panel-title"><h3>KT알파쇼핑</h3></div>{ktRows.length ? <KtTable release={release} day={day} order={order}/> : <p className="empty-state">해당 요일 편성 없음</p>}</article>
     <article className="company-panel" data-company-panel="CJ"><div className="company-panel-title"><h3>CJ온스타일</h3></div>{cjRows.length ? <CJ release={release} rows={cjRows}/> : <p className="empty-state">해당 요일 편성 없음</p>}</article>
     <article className="company-panel" data-company-panel="GSHOP"><div className="company-panel-title"><h3>공영홈쇼핑</h3></div><PublicHomeShoppingDetails/></article>
   </section>;
 }
 
-function ShoppingNtTable({ release, day, order }: { release: Release; day: ViewDay; order: ViewOrder }) {
+function ShoppingNtTable({ release, day, order, mode }: { release: Release; day: ViewDay; order: ViewOrder; mode: ShoppingNtRateMode }) {
   const offerById = new Map(release.offers.filter((offer) => offer.channel === 'ShoppingNT').map((offer) => [offer.id, offer]));
   const visibleDays = day === 'all' ? [...shoppingNtDays] : [day];
   if (order === 'weekday-time-desc') visibleDays.reverse();
   const visibleHours = Array.from({ length: 24 }, (_, hour) => hour);
   if (order === 'weekday-time-desc') visibleHours.reverse();
-  return <><p className="table-hint" aria-hidden="true">↔ 좌우로 밀어서 요일별 요금을 확인하세요.</p><div className="rate-table-wrap" role="region" aria-label="쇼핑엔티 요금표 스크롤 영역" tabIndex={0}><table className="rate-table" aria-label="쇼핑엔티 시간대별 방송 요금"><thead><tr><th scope="col">시간</th>{visibleDays.map((visibleDay) => <th scope="col" key={visibleDay}>{koDay[visibleDay]}</th>)}</tr></thead><tbody>{visibleHours.map((hour) => { const hourText = String(hour).padStart(2, '0'); return <tr key={hourText}><th scope="row">{hourText}</th>{visibleDays.map((visibleDay) => { const zone = shoppingNtZone(visibleDay, hour); const edge = shoppingNtBoundary(visibleDay, hour); const offer = offerById.get(`snt-${visibleDay.toLowerCase()}-${hourText}`); const className = [zone === 'inside_box' ? 'rate-inside' : 'rate-outside', edge.top && 'zone-top', edge.right && 'zone-right', edge.bottom && 'zone-bottom', edge.left && 'zone-left'].filter(Boolean).join(' '); return <td key={visibleDay} data-day={visibleDay} data-hour={hourText} data-zone={zone} className={className}><strong>{offer?.priceManwon.toLocaleString('ko-KR')}</strong><span className="sr-only">만원 · {zone === 'inside_box' ? '빨간선 안쪽' : '빨간선 바깥'}</span></td>; })}</tr>; })}</tbody></table></div></>;
+  return <><p className="table-hint" aria-hidden="true">↔ 좌우로 밀어서 요일별 요금을 확인하세요.</p><div className="rate-table-wrap" role="region" aria-label="쇼핑엔티 요금표 스크롤 영역" tabIndex={0}><table className="rate-table" aria-label="쇼핑엔티 시간대별 방송 요금"><thead><tr><th scope="col">시작시간</th>{visibleDays.map((visibleDay) => <th scope="col" key={visibleDay}>{koDay[visibleDay]}</th>)}</tr></thead><tbody>{visibleHours.map((hour) => { const hourText = String(hour).padStart(2, '0'); const start = `${hourText}:33`; return <tr key={hourText}><th scope="row">{start}</th>{visibleDays.map((visibleDay) => { const zone = shoppingNtZone(visibleDay, hour); const edge = shoppingNtBoundary(visibleDay, hour); const offer = offerById.get(`snt-${mode}-${visibleDay.toLowerCase()}-${hourText}`); const className = [zone === 'inside_box' ? 'rate-inside' : 'rate-outside', edge.top && 'zone-top', edge.right && 'zone-right', edge.bottom && 'zone-bottom', edge.left && 'zone-left'].filter(Boolean).join(' '); return <td key={visibleDay} data-day={visibleDay} data-hour={hourText} data-zone={zone} className={className}><strong>{offer?.priceManwon.toLocaleString('ko-KR')}</strong><span className="sr-only">만원 · {zone === 'inside_box' ? '빨간선 안쪽' : '빨간선 바깥'}</span></td>; })}</tr>; })}</tbody></table></div></>;
 }
 
 function KtTable({ release, day, order }: { release: Release; day: ViewDay; order: ViewOrder }) {

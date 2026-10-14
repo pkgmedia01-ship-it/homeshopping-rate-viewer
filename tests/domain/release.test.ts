@@ -27,11 +27,12 @@ describe('release domain', () => {
     const release = createSyntheticRelease();
     expect(release.synthetic).toBe(true);
     expect(release.evidence.every((e) => /^[a-f0-9]{64}$/.test(e.sha256))).toBe(true);
-    expect(release.evidence.find((e) => e.id === 'ev-shoppingnt')).toMatchObject({ synthetic: false, sha256: '0da5da5e0b241a87abb960be2a60550ce1a01457cbb9f20f6e6bb4a96ab774af' });
+    expect(release.month).toBe('2026-11');
+    expect(release.evidence.find((e) => e.id === 'ev-shoppingnt')).toMatchObject({ synthetic: false, sha256: '3ddeb86392dc9fdcc7fdcff07a5fc4f7821243b165cae10e991f2915ba3ebdf3' });
     expect(release.evidence.find((e) => e.id === 'ev-kt')).toMatchObject({ synthetic: false, sha256: 'ed963f23bba5e31d39350c9468338475999d130fa643db22a6da8f6a7f2bb03e', page: 1 });
     expect(release.evidence.find((e) => e.id === 'ev-cj')).toMatchObject({ synthetic: false, sha256: '0ba560ab04466efecc7a240c8048db3ebfc5395375738a616142be354f6e75e0', page: 1 });
-    expect(release.offers.filter((x) => x.channel === 'ShoppingNT')).toHaveLength(168);
-    expect(release.airings.filter((x) => x.channel === 'ShoppingNT')).toHaveLength(168);
+    expect(release.offers.filter((x) => x.channel === 'ShoppingNT')).toHaveLength(336);
+    expect(release.airings.filter((x) => x.channel === 'ShoppingNT')).toHaveLength(336);
     expect(release.offers.filter((x) => x.channel === 'KT')).toHaveLength(56);
     expect(release.airings.filter((x) => x.channel === 'KT')).toHaveLength(56);
     expect(release.offers.filter((x) => x.channel === 'CJ')).toHaveLength(7);

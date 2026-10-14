@@ -8,6 +8,6 @@ export async function GET(request: Request): Promise<Response> {
   let month: string; try { month = parseMonth(url.searchParams.get('month')); } catch { return Response.json({ error: 'invalid month' }, { status: 400, headers: privateNoStoreHeaders() }); }
   try { assertRuntimeDataMode(process.env); } catch { return Response.json({ error: 'data mode refused' }, { status: 503, headers: privateNoStoreHeaders() }); }
   if (!isRuntimeDataMode(process.env)) return Response.json({ error: 'Sheets adapter not configured' }, { status: 503, headers: privateNoStoreHeaders() });
-  if (month !== '2026-10') return Response.json({ error: 'release not found' }, { status: 404, headers: privateNoStoreHeaders() });
+  if (month !== '2026-11') return Response.json({ error: 'release not found' }, { status: 404, headers: privateNoStoreHeaders() });
   return Response.json(isPublicDemoMode(process.env) ? createReviewedRelease() : createSyntheticRelease(), { headers: privateNoStoreHeaders() });
 }

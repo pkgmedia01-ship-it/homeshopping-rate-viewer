@@ -5,7 +5,7 @@
 1. `.env.example`을 참고하되 비밀값을 저장하지 않는다.
 2. `LOCAL_SYNTHETIC_MODE=true npm run dev`로 시작한다.
 3. 요금·시간·VAT·편성 조건이 표시되고 내부 검증용 해시·출처 문구가 사용자 화면에 노출되지 않는지 확인한다.
-4. `/api/rates?month=2026-10`, `/api/videos?month=2026-10` 응답의 `Cache-Control: private, no-store`를 확인한다.
+4. `/api/rates?month=2026-11`, `/api/videos?month=2026-11` 응답의 `Cache-Control: private, no-store`를 확인한다.
 5. `npm run lint && npm run typecheck && npm test && npm run build && npm run test:e2e && npm run validate:import`를 실행한다.
 
 ## 장애 상태
