@@ -50,7 +50,7 @@ test('viewer shows synthetic release and channel tabs', async ({ page }, testInf
   await expect(daySort).toBeEnabled();
   await daySort.selectOption('Tue');
   await expect(page.getByRole('heading', { name: 'KT알파쇼핑 요금표' })).toBeVisible();
-  await expect(page.getByRole('table', { name: 'KT알파쇼핑 시간대별 방송 요금' }).locator('tbody tr').first()).toContainText('00');
+  await expect(page.getByRole('table', { name: 'KT알파쇼핑 시간대별 방송 요금' }).locator('tbody tr').first()).toContainText('00:38');
   await expect(page.getByRole('table', { name: 'KT알파쇼핑 시간대별 방송 요금' }).locator('tbody tr')).toHaveCount(8);
   await companySort.selectOption('ShoppingNT');
   await daySort.selectOption('all');
@@ -59,6 +59,7 @@ test('viewer shows synthetic release and channel tabs', async ({ page }, testInf
   await expect(page.getByRole('button', { name: '전국 방송' })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('button', { name: 'IPTV' })).toHaveAttribute('aria-pressed', 'false');
   await expect(page.getByRole('table', { name: '쇼핑엔티 시간대별 방송 요금' })).toBeVisible();
+  await expect(page.getByRole('table', { name: '쇼핑엔티 시간대별 방송 요금' }).getByRole('columnheader', { name: '시간', exact: true })).toBeVisible();
   await expect(page.getByText('좌우로 밀어서 요일별 요금을 확인하세요.')).toBeVisible();
   await expect(page.getByText('빨간선 바깥 시간 편성 시 3회 편성 必', { exact: false })).toBeVisible();
   await expect(page.locator('td[data-day="Sat"][data-hour="06"]')).toContainText('2,649');
@@ -76,6 +77,9 @@ test('viewer shows synthetic release and channel tabs', async ({ page }, testInf
   await page.getByRole('tab', { name: 'KT알파쇼핑' }).click();
   await expect(page.getByRole('heading', { name: 'KT알파쇼핑 요금표' })).toBeVisible();
   await expect(page.getByRole('table', { name: 'KT알파쇼핑 시간대별 방송 요금' })).toBeVisible();
+  await expect(page.getByRole('row', { name: /00:38/ })).toBeVisible();
+  await expect(page.getByRole('row', { name: /17:38/ })).toBeVisible();
+  await expect(page.getByRole('row', { name: /18:38/ })).toBeVisible();
   await expect(page.locator('td[data-day="Tue"][data-hour="20"]')).toContainText('5,290');
   await expect(page.locator('body')).not.toContainText('원본 미기재');
   await expect(page.getByText('이용 불가')).toHaveCount(0);

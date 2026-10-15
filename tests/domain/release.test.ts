@@ -78,6 +78,10 @@ describe('release domain', () => {
     for (const [day, prices] of Object.entries(expected)) {
       expect(hours.map((hour) => release.offers.find((offer) => offer.id === `kt-offer-${day.toLowerCase()}-${hour}`)?.priceManwon)).toEqual(prices);
     }
+    expect(release.airings.filter((x) => x.channel === 'KT' && x.day === 'Mon').map((x) => x.start)).toEqual([
+      '00:38', '17:38', '18:38', '19:38', '20:38', '21:38', '22:38', '23:38'
+    ]);
+    expect(release.airings.filter((x) => x.channel === 'KT').every((x) => x.timeKind === 'explicit')).toBe(true);
   });
 
   it('detects broken relation and declared-count integrity', () => {

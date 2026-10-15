@@ -50,8 +50,8 @@ export function createSyntheticRelease(): Release {
     const h = String(hour).padStart(2, '0');
     const id = `kt-offer-${day.toLowerCase()}-${h}`;
     const price = ktRates[day][hourIndex]!;
-    offers.push(offer(id, 'KT', 'DEFAULT', `${day} ${h}시`, price, 'ev-kt', 'time_slot_fee', 'unspecified'));
-    airings.push({ id: `kt-${day.toLowerCase()}-${h}`, offerId: id, channel: 'KT', day, start: `${h}:00`, end: `${String((hour + 1) % 24).padStart(2, '0')}:00`, endDayOffset: hour === 23 ? 1 : 0, kind: 'slot', timeKind: 'derived_example', evidenceId: 'ev-kt' });
+    offers.push(offer(id, 'KT', 'DEFAULT', `${day} ${h}:38`, price, 'ev-kt', 'time_slot_fee', 'unspecified'));
+    airings.push({ id: `kt-${day.toLowerCase()}-${h}`, offerId: id, channel: 'KT', day, start: `${h}:38`, end: `${String((hour + 1) % 24).padStart(2, '0')}:38`, endDayOffset: hour === 23 ? 1 : 0, kind: 'slot', timeKind: 'explicit', evidenceId: 'ev-kt' });
   }
 
   const cjRows = [
